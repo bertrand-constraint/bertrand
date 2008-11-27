@@ -58,35 +58,6 @@ return exp;
 
 /******************************************************************
  *
- * Find a rule that matches an expression.
- *
- * entry:	an expression
- *
- * exit:	returns the rule that matched
- *		return NULL if no rule matches this expression.
- *		Does not try to match against subexpressions.
- *
- ******************************************************************/
-static RULE *
-match(exp)
-NODE *exp;	/* the expression to match */
-{
-#ifndef __STDC__
-int match_sub();	/* forward reference */
-#endif
-register RULE *rtt;	/* rule to try */
-
-/* this assumes that the root of all rule heads are terms */
-if (!(exp->op->arity & OP_TERM)) return (RULE *) NULL; 
-
-for(rtt = exp->op->hash; rtt; rtt = rtt->next) {
-    if (match_sub(rtt->head, exp)) return rtt;
-    }
-return (RULE *) NULL;	/* no rule matched */
-}
-
-/******************************************************************
- *
  * See if a parameter with a guard matches its argument
  *
  ******************************************************************/
@@ -157,6 +128,35 @@ if (head->op->arity & BINARY) {
 fprintf(stderr, "arity: %s\n", arity_name(exp->op->arity));
 error("Unknown arity during pattern match!");
 return FALSE;	/* will never execute */
+}
+
+/******************************************************************
+ *
+ * Find a rule that matches an expression.
+ *
+ * entry:	an expression
+ *
+ * exit:	returns the rule that matched
+ *		return NULL if no rule matches this expression.
+ *		Does not try to match against subexpressions.
+ *
+ ******************************************************************/
+static RULE *
+match(exp)
+NODE *exp;	/* the expression to match */
+{
+#ifndef __STDC__
+int match_sub();	/* forward reference */
+#endif
+register RULE *rtt;	/* rule to try */
+
+/* this assumes that the root of all rule heads are terms */
+if (!(exp->op->arity & OP_TERM)) return (RULE *) NULL;
+
+for(rtt = exp->op->hash; rtt; rtt = rtt->next) {
+    if (match_sub(rtt->head, exp)) return rtt;
+    }
+return (RULE *) NULL;	/* no rule matched */
 }
 
 /*************************************************************
