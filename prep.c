@@ -644,17 +644,39 @@ infiles[filespushed] = infile;
 infilenames[filespushed] = infilename;
 inlinenos[filespushed] = lineno;
 verboses[filespushed] = verbose;
-infile = fopen(tok, "r");
-if (NULL == infile) {
-    char fbuf[256];
-    strcpy(fbuf, libdir);
-    strcat(fbuf, tok);
-    infile = fopen(fbuf, "r");
+
+const int max_filename_size = 256;
+char loadable_in_libraries[max_filename_size];
+sprintf(loadable_in_libraries, "libraries/%s", tok);
+char loadable_in_libdir[max_filename_size];
+sprintf(loadable_in_libdir, "%s/%s", libdir, tok);
+const char *loadables[] = {
+    tok,
+    loadable_in_libraries,
+    loadable_in_libdir,
+};
+const int loadables_size = 3;
+
+int loaded = 0;
+char *loadable;
+int loadable_i;
+for (loadable_i = 0; loadable_i < loadables_size; ++loadable_i) {
+    // TODO If verbose, print message
+    // printf("trying %s\n", loadables[loadable_i]);
+    loadable = loadables[loadable_i];
+    infile = fopen(loadable, "r");
     if (NULL == infile) {
-	fprintf(stderr, "include file: %s\n", tok);
-	error("file not found");
-	}
+        // TODO If verbose, print message
+    } else {
+        loaded = 1;
+        break;
     }
+}
+
+if (0 == loaded) {
+    fprintf(stderr, "include file: %s\n", tok);
+    error("file not found");
+}
 infilename = char_copy(tok);
 verbose = FALSE;
 lineno = 1;
