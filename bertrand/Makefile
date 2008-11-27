@@ -1,5 +1,7 @@
 # Bertrand interpreter.
 
+.PHONY : clean
+
 # Make sure the variable LIBDIR is set to where you want your
 # include files to live (e.g., beep, bops and bag).
 
@@ -26,3 +28,6 @@ graphics.o: graphics.c graphics.h
 
 graphics.h: graphics.cps
 	cps graphics.cps
+
+clean:
+	rm *.o || true
