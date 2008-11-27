@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "def.h"
 
 /*************************************************************
@@ -104,7 +105,9 @@ static SNODE *all_st_mem = NULL;	/* pointer to all stack memory */
 SNODE *
 st_get()
 {
+#ifndef __STDC__
 char *malloc();
+#endif
 SNODE *temp;		/* node to be allocated to stack */ 
 
 if (!st_mem) {
@@ -191,7 +194,9 @@ char *s;
 {
 char *t;	/* new character string */
 int ss;		/* size of argument string s */
+#ifndef __STDC__
 char *calloc();
+#endif
 
 ss = strlen(s) + 1;	/* one extra for null terminator */
 t = (char *) calloc(ss, sizeof(char));

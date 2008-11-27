@@ -34,7 +34,9 @@ void
 ps_print(st)
 SNODE *st;
 {
+#ifndef __STDC__
 void expr_print();		/* from expr.c */
+#endif
 
 while(st) {
     if (st->info == OPER_TYPE) fprintf(stderr, "\tOP: %s\n", st->node->op->pname);
@@ -288,7 +290,9 @@ shift(p, type)
 NODE *p;
 int type;
 {
+#ifndef __STDC__
 void expr_print();	/* from expr.c */
+#endif
 register SNODE *temp;
 SNODE *st_get();	/* from util.c */
 

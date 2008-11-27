@@ -22,7 +22,9 @@ NODE *expr_mem = NULL;		/* next free expression tree node */
 NODE *
 node_new()
 {
+#ifndef __STDC__
 char *calloc();
+#endif
 NODE *temp;
 register int i;
 

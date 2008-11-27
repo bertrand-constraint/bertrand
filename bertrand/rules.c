@@ -82,7 +82,9 @@ NODE *head, *body;
 OP *tag;
 NAME_NODE *names;		/* local name space */
 {
+#ifndef __STDC__
 char *malloc();
+#endif
 void rule_print();		/* forward reference */
 register RULE *rr;
 RULE *cr, *pr = NULL;		/* used to insert rule into list */

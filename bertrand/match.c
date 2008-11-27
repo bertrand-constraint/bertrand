@@ -26,7 +26,9 @@ void
 subject_push(old)
 NODE *old;		/* old subject expression */
 {
+#ifndef __STDC__
 char *malloc();
+#endif
 register SUB_STACK *node;
 
 node = (SUB_STACK *) malloc(sizeof(SUB_STACK));
@@ -69,7 +71,9 @@ static RULE *
 match(exp)
 NODE *exp;	/* the expression to match */
 {
+#ifndef __STDC__
 int match_sub();	/* forward reference */
+#endif
 register RULE *rtt;	/* rule to try */
 
 /* this assumes that the root of all rule heads are terms */

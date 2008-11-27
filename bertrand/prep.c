@@ -153,8 +153,10 @@ short arity;
 register int l;		/* length of name */
 int class;
 OP *op;
+#ifndef __STDC__
 OP *op_new();		/* from ops.c */
 void op_put();		/* from ops.c */
+#endif
 
 class = trans[opn[0]];
 if (C_ALPH == class) {		/* alphanumeric operator */
@@ -445,7 +447,9 @@ register OP *ty;
 register char *tok;
 int len;
 OP *sop;
+#ifndef __STDC__
 OP *op_new();		/* from ops.c */
+#endif
 
 tok = token_get();
 if (tok[0] != '\'') {
