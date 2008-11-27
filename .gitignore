@@ -1,0 +1,6 @@
+*.diff
+*.o
+*.swp
+*.tmp
+*~
+bert
