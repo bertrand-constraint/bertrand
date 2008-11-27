@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "def.h"
 
 int verbose;
@@ -12,7 +13,7 @@ static char* copyright = "copyright (c) 1988 Wm Leler";
  * command line arguments:	names of bertrand programs to be executed 
  *
  *********************************************************************/
-void
+int
 main(argc, argv)
 int argc;
 char *argv[];
@@ -79,4 +80,6 @@ do {
 	}
 
     } while(++argno<argc);
+
+    return 0;
 }
