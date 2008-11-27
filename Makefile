@@ -31,3 +31,4 @@ graphics.h: graphics.cps
 
 clean:
 	rm *.o || true
+	rm bert || true
