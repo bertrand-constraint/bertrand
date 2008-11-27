@@ -1,0 +1,40 @@
+#include bag
+
+#op if 240 prefix
+#op then 250 left
+#op else 250 left
+
+if a then b else c { a -> b; ~a -> c }
+
+.. if width > 100 then cutwidth = 50 else cutwidth = width / 2;
+
+.. false ; a	{ "overconstrained object, error!" ; a }
+
+.. #trace
+
+main {
+
+width = 3;
+height = 2;
+
+... declare numbers
+width: aNumber;
+height: aNumber;
+
+... declare lines
+left: aLine; right: aLine; bottom: aLine; top: aLine;
+
+... set origin of object
+left.begin.x = 0.5; left.begin.y = 0.5;
+... connect lines together
+top conn right; right conn bottom; bottom conn left; left conn top;
+.. constrain lines to be horizontal or vertical
+horiz top; horiz bottom; vert right; vert left;
+... width & height
+widthof bottom = -width;
+heightof left = height;
+... draw commands
+top! ; bottom! ; left! ; right! ;
+
+true
+}

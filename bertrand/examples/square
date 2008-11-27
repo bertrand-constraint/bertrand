@@ -1,0 +1,34 @@
+#include bag
+
+main {
+
+width = 2;
+height = 2;
+
+... declare numbers
+width: aNumber;
+height: aNumber;
+
+... declare lines
+left: aLine; right: aLine; bottom: aLine; top: aLine;
+
+... center
+center: aPoint;
+center.x = (bottom.begin.x + bottom.end.x) / 2;
+center.y = (left.begin.y + left.end.y) / 2;
+
+... set origin of object
+left.begin.x = 0.5; left.begin.y = 0.5;
+... connect lines together
+top conn right; right conn bottom; bottom conn left; left conn top;
+.. constrain lines to be horizontal or vertical
+horiz top; horiz bottom; vert right; vert left;
+... width & height
+widthof bottom = -width;
+heightof left = height;
+... draw commands
+top! ; bottom! ; left! ; right! ;
+("hello", center.x, center.y) ! ;
+
+true
+}

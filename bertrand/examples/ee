@@ -1,0 +1,48 @@
+#include beep
+
+#type 'eob
+#op battery postfix 320
+#op resistor postfix 320
+
+voltage battery {
+	voltagein: aNumber; voltageout: aNumber; current: aNumber;
+	- voltage = voltagein - voltageout
+	} 'eob
+
+resistance resistor {
+	voltagein: aNumber; voltageout: aNumber; current: aNumber;
+	voltagein - voltageout = current * resistance
+	} 'eob
+
+#op volt postfix 340
+#op ohm postfix 340
+#op kilo postfix 340
+#op ground nullary
+n volt { n }
+n ohm { n }
+n kilo { 1000 * n }
+ground { 0 }
+	
+#op series left 300
+
+a'eob series b'eob {
+	a.current = b.current &
+	a.voltageout = b.voltagein
+	}
+
+#op voltageacross prefix 360
+#op currentthrough prefix 360
+voltageacross a'eob { a.voltagein - a.voltageout }
+currentthrough a'eob { a.current }
+
+main {
+	b1: 6 volt battery;
+	r1: 100 ohm resistor;
+	r2: 100 ohm resistor;
+
+	b1 series r1;
+	r1 series r2;
+	r2 series b1;
+	b1.voltagein = ground;
+	currentthrough r1, voltageacross r1
+	}

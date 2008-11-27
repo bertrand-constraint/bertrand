@@ -1,0 +1,403 @@
+.nr PS 11
+.nr VS 14
+.ds Q `\h'-0.5'`\h'0.5'
+.ds U \h'0.5''\h'-0.5''
+.de IP
+.sp .5
+.in .5i
+.ti -.5i
+.ta .5i
+..
+.TL
+Documentation for the Beta Release of Bertrand 88
+.AU
+Wm Leler
+.LP
+Bertrand 88 is copyright (c) 1988 Wm Leler.
+.LP
+By using this software, you agree to the following:
+.LP
+\(bu That you will not redistribute this software without including
+this document and the copyright notice.
+.LP
+\(bu That you will not sell this software, modifications of this
+software, or any derived software for commercial gain.
+.LP
+The purpose of this distribution is to encourage research into constraint
+languages.  Please help this effort along by reporting (or preferably
+fixing) bugs as you find them.
+.LP
+I certainly do not view Bertrand as the \*Qultimate\*U constraint language \(em
+rather I hope it is a first step towards more generally useful constraint
+languages.  I honestly enjoy using it, but much of my appreciation
+comes from prior spells of effort and frustration spent building
+constraint languages by hand.  You, having had an easy life, might not
+instantly appreciate some of the finer points, and (not being constrained
+by those experiences) might even think of better ways to do some things. 
+This is exactly why you have this software.  Rewrite it.  Change it.  Make
+it useful.
+.LP
+To use Bertrand, you should have a copy of the book \*QConstraint
+Programming Languages: Their Specification and Generation\*U
+published by Addison-Wesley, 1988.  This document explains some of the
+differences between the current software and that described in the book,
+and also discusses how to modify the interpreter for special purposes.
+.LP
+This software is a complete rewrite of the software described in the book,
+and contains some differences (mostly minor).  Two of these differences
+affect mainly the speed of the interpreter.
+.LP
+\(bu This version of Bertrand does not use the fast pattern matching
+algorithm of Hoffmann and O'Donnell (described in Chapter 7).
+That algorithm made it difficult to modify the rule set dynamically.
+Also for typical uses it took longer to
+preprocess the rules than to run them.
+This change means that rules no longer have to obey
+\*Qstrict left sequentiality\*U.
+Unfortunately, it also means that it is much easier
+to write rules that get into infinite loops.
+.LP
+\(bu This version of the interpreter actually implements the \*Qis\*U
+operator, and the linear equation solver (written entirely in Bertrand)
+really does use it!
+Consequently, the equation solver runs more slowly,
+but it is much easier now to change the equation solver
+to try out more ambitious equation solving rules
+(since they are not implemented in C).
+If you want to implement part of the equation solver in C,
+there are some routines in mole.c that you might find useful.
+.LP
+If you are interested in the old version of the software I would be happy to
+make it available, but be warned that it was the result of a long
+development effort and contains many idiosyncrasies (as well as some
+outright bugs).  Conversely, I would be interested in improvements you
+might make to Bertrand.
+.LP
+One point in the book bears repeating.  Do not think of Bertrand as a
+general-purpose problem-solving system.
+It is very easy to throw problems at Bertrand that it cannot possibly solve.
+A common mistake is to try to use Bertrand like a logic programming
+language such as Prolog (I view this as a deficiency,
+and would love to see someone combine Bertrand with a logic
+programming language).   To use Bertrand effectively you
+\fIreally must understand how Augmented Term Rewriting works.\fP
+.LP
+A final warning.  Like most UNIX software, the ultimate guide to
+Bertrand is the source, and the best way to learn how to use it is to start
+with the examples and build on them.  Good luck!
+.SH
+Using Bertrand
+.LP
+Bertrand is typically used in conjunction with one or more libraries:
+.LP
+\(bu bops, the standard Bertrand operator definitions, which defines most
+of the operators that typical Bertrand programs will use.
+.LP
+\(bu beep, the Bertrand elementary equation processing library, which
+defines operators and rules for solving equations.
+.LP
+\(bu bag, the Bertrand graphics library.
+.LP
+These libraries are included explicitly in Bertrand programs, as desired,
+using the #include directive (see discussion on the preprocessor, below).
+.LP
+To invoke Bertrand, type:
+.DS I
+bert \fIfilename\fP
+.DE
+Where \fIfilename\fP is a file containing your rules.
+One of these rules should be the \fImain\fP rule \(em its head
+should consist of the single operator \*Qmain\*U.
+Alternatively, Bertrand can be run in a pipeline, by feeding the
+rules into standard input.
+Bertrand will run until there are no more rewrites to be done,
+and then print out the final subject expression.
+.SH
+Syntax
+.LP
+Since the primary purpose of Bertrand is to define other languages, it
+is important for it to have as little syntax as possible.  Bertrand
+understands the following input:
+.LP
+\(bu Alphanumeric names, including upper and lower case letters,
+numeric digits, and underscore (\|_\|).  Names must begin with an
+alphabetic character.
+.LP
+\(bu Numbers, containing only numeric digits and possibly a single
+decimal point.  Note that negative numbers and scientific notation must
+be defined using rules (which they are, in beep).  See the discussion on
+matching numbers, below.
+.LP
+\(bu Whitespace, which is used to delimit alphanumeric names.  Includes
+space, tab, newline, and the formfeed character.  Formfeeds can be
+freely inserted to force page breaks in Bertrand programs.
+.LP
+\(bu Other characters, which are anything else except reserved
+characters.  These characters are used to make one or two character
+operator names, for example: +  >=  &  \-> .
+.LP
+\(bu The only reserved characters are the period, left and right curly
+braces, the hash sign, and all three quote marks.  The multitalented
+period is used as a decimal point (for example, the number 3.14), to
+delimit compound names (for example, the name rectangle.width), and
+for comments, which begin with two or more adjacent periods, and run
+to the end of the line.  As a matter of style, an ellipsis (three periods) is
+often used to begin comments to set them off better.  Curly braces ({\|}) are
+used to enclose the bodies of rules.  The hash sign (#) is used to begin
+preprocessor statements.  Single quotes (\|'\|) are used to begin type
+names.  Double quotes (\|"\|) are used to delimit strings.  Within strings,
+back quotes (\|`\|) are used for special characters, as follows:
+.DS I
+	`b	backspace
+	`f	formfeed
+	`n	newline
+	`r	carriage return
+	`t	tab
+	`"	double quote (that doesn't end the string)
+	``	back quote
+.DE
+.LP
+To change any of the above, see the file scanner.c.
+.SH
+The Preprocessor
+.LP
+All preprocessor statements begin with a hash sign (#)
+in the first column and run to the end of the line.
+A preprocessor statement may contain a comment (which necessarily
+terminates the preprocessor statement).
+The following preprocessor statements are recognized:
+.LP
+\(bu  #operator \fIdefinition\fP
+.br
+\(bu  #op \fIdefinition\fP
+.br
+Used to define an operator.
+All operators must be defined to the system,
+otherwise they are assumed to be variables.
+Within operator definitions the following keywords are recognized:
+.DS I
+.ta 1.5i
+nullary	nullary
+unary	unary
+prefix	unary prefix
+postfix	unary postfix
+outfix	unary outfix
+matchfix	unary outfix
+binary	binary infix
+infix	binary infix
+left	binary infix left associative
+right	binary infix right associative
+non	binary infix nonassociative
+nonassociative	binary infix nonassociative
+associative	(usually preceded by the keyword \*Qnon\*U)
+precedence	(usually followed by a number)
+supertype	(usually followed by a typename)
+.DE
+Most of these keywords are optional.  The default arity is nullary.
+Unary operators default to prefix.  Infix operators default to nonassociative. 
+Outfix operators must have two operator names, and do not need to be given a
+precedence.  Precedence values are completely arbitrary \(em see bops for
+some ideas.  Special functions (see below) are indicated by a hash sign
+(#) followed by a number.  For examples of operator
+definitions, see the libraries, especially bops.
+.LP
+\(bu  #primitive \fIdefinition\fP
+.br
+Used to give a supertype to an operator or type that is already known to
+the system.  For example:
+.DS I
+#primitive true supertype 'boolean
+.DE
+defines the operator \*Qtrue\*U to be a subtype of 'boolean.  The keyword
+\*Qsupertype\*U is optional.  Note that the operator or type need not be truly
+primitive.  For example, beep uses this directive to give supertypes to
+some of the types defined in bops.
+.LP
+\(bu  #type \fIdefinition\fP
+.br
+Used to define a type, which must begin with a single quote.  A type may
+optionally have a single supertype.  The keyword \*Qsupertype\*U is optional.
+.LP
+\(bu  #include \fIfilename\fP
+.br
+Reads input from \fIfilename\fP, and when done resumes reading the
+current file.  These may be nested to a depth of 16 files.  The filename
+may be enclosed in double quotes if it contains any spaces, in which case
+it may not contain any double quotes.
+.LP
+\(bu  #trace \fInumber\fP
+.br
+\(bu  #quiet
+.br
+Turn tracing on and off.
+The argument to trace is the level of tracing,
+where #trace 0 is the same as #quiet.
+If the argument is omitted, it defaults to 1.
+See the discussion of tracing, below.
+.LP
+\(bu  #line
+.br
+Used to change the line number that Bertrand thinks it is reading.
+Only affects error messages.  Typically used only by programs
+that generate Bertrand code.
+.LP
+Look in bops, beep and bag for examples of preprocessor statements. 
+The file prep.c contains the code that interprets these statements.
+.SH
+Special Functions
+.LP
+Some operators can be defined to be special \(em they invoke special
+functions in the Bertrand interpreter.  There are two types of special
+functions, those performed by the parser (at the time the input file is
+read in), and those performed at run time.  All of the parse-time functions,
+and one run-time function, are fundamental to the operation
+of the Bertrand interpreter.
+These functions are as follows:
+.IP
+1	Parser reduce function to throw an operator away.  Defined
+in bops to be parentheses.  This allows parentheses to be
+used for grouping, without actually appearing in the parsed
+expression.  Can be used to make any operator be a no-op.
+.IP
+2	Parser reduce function for labels.  Defined in bops to be a
+colon (:).  A label is used to give a name to an object, or to
+provide access to the local variables of a rule.
+.IP
+3	Parser reduce function to negate a constant number.
+This function is only required because of an obscure problem
+with numbers that might get cured in a future release.  See
+the discussion on matching numbers, below.
+.IP
+4	Run-time function to prevent evaluation of a subexpression.
+Defined in bops to be square brackets ([\|]).
+Prevents the pattern matcher from searching its argument for redexes.
+Normal Bertrand rules can be used to remove the brackets (which can themselves
+be pattern matched), as in the following rules:
+.in +.5i
+eval [ expr ] { expr }
+.br
+if true then [ truepart ] else [ falsepart ] { truepart }
+.br
+if false then [ truepart ] else [ falsepart ] { falsepart }
+.br
+.in -.5i
+Warning: this is a procedural hack to Bertrand that should only be used
+to gain execution speed.
+In particular, none of the examples or libraries use this.
+.in 0
+.LP
+These special functions can be assigned to specific operators
+in operator definitions with a hash sign followed by the special
+operator number.  See bops for examples.
+.LP
+It is also possible to write a C function and assign it to a specific
+operator.  This has already been done in the interpreter for such things
+as the addition primitive for adding two numbers together,
+and the graphics primitives.
+It is relatively straightforward to add your own primitives.
+Look in the file primitive.c to see how this is done.
+.LP
+The graphics primitives call routines in graphics.c, written for
+Sun's NeWS window system.  These routines, however, would be very
+easy to port over to some other window system, if desired.
+(A port to the Macintosh might be available later).
+The library libcps.a, which defines the interface to the
+graphics routines that Bertrand uses is part of the NeWS
+window system.  If you do not have NeWS, you will have to
+either change the interface to some other system, or else remove
+the graphics routines in order to get the system to compile.
+.SH
+Matching Numbers
+.LP
+In the attempt to keep Bertrand as simple as possible, a strange problem
+with numbers was created.  The Bertrand scanner only recognizes
+positive numbers, possibly containing a single decimal point.  For
+example, what might appear to be the negative constant \-3, is actually a
+unary minus sign (an operator) followed by the positive constant 3.  The
+effect of this is that negative numbers cannot be used in the head of a
+rule.  In the body of a rule, of course, the above will be immediately
+rewritten into a negative number.  Used in the head of a rule, however, it
+causes Bertrand to search (literally) for the pattern of a minus sign
+followed by a positive number, which it will never find.
+.LP
+The same problem applies to numbers in Bertrand's (somewhat
+different) scientific notation.  In beep, the double caret (^^) operator is
+defined using the rule
+.DS I
+	a ^^ b  { a * 10^b }
+.DE
+Consequently, the number \-25^^\-3 is really an expression containing
+two numbers and three operators, which will be rewritten (by beep) into
+the number \-0.025.
+(Note that we could define an operator \*Qe\*U to allow the above
+number to be written as \-25e\-3). 
+.LP
+A temporary solution was implemented as a special parser reduce
+function that negates its argument at parse time.  This function is
+usually assigned to the name \*Qneg\*U in bops.  Thus the expression
+\*Qneg 3\*U is changed (by the parser) into the constant \-3.
+No corresponding fix was deemed necessary for numbers in scientific notation,
+since it is usually a bad idea to try to do a pattern match against
+anything other than an integer.
+.LP
+The real solution is to change the scanner to treat the minus sign as a
+(possibly) reserved character to be used for negative numbers.  This
+would mean, however, that \- 3 (with a space) and \-3 (no space) would
+parse differently.  We could also use the standard convention for
+scientific notation and treat the characters \*Qe\*U and \*QE\*U specially.
+Note that since we use the C library functions for printing,
+numbers already print out in this form.
+.LP
+The code for all this nonsense is in scanner.c.
+.SH
+Tracing
+.LP
+When tracing is off, Bertrand only prints out the fully transformed
+subject expression when it is done running.
+The preprocessor statements #trace and #quiet can be used
+to print out diagnostic information about a sequence of rewritings.
+.LP
+Tracing is an attribute of specific rules \(em
+the tracing value of a rule is the value in effect when it was parsed.
+At parse time, traced rules are printed out, along with their local name spaces.
+At run time, traced rules are printed out when they are matched,
+along with the complete subject expression both before and after the rewrite.
+.LP
+The state of tracing is actually a numeric value, and
+whether a rule is traced is actually a function of both the
+state of tracing when the rule was parsed, and when the match is made.
+At run time, the tracing value of the rule and the current tracing
+value are added together.  If this number is greater than two, then
+the rule is traced.
+For example, consider the following set of rules:
+.DS I
+#trace 0
+ruleA { body }
+#trace 1
+ruleB { body }
+#trace 2
+ruleC { body }
+#trace
+.DE
+At run time, tracing is (initially) as the parser left it,
+in this case 1, so rules B and C will be traced.
+If instead, tracing is set to 0 (perhaps using #quiet),
+then rule C will still be traced.
+But if tracing is set to 2, then all rules will be traced.
+At run time, tracing can be changed dynamically using the \*Qtrace\*U operator,
+which takes a single numeric argument.
+Finally, if a file has tracing on, then any file it #includes will (initially)
+have the same tracing value, but changes made to the tracing in the #included
+file will not affect tracing in the original file.
+.SH
+Types
+.LP
+When expressions are printed out by Bertrand, the type of each variable
+will be printed.
+Initially, all variables are undeclared, which prints out as the type '?.
+In Bertrand, variables are declared using object-constructing rules.
+If a variable is never declared by the programmer,
+it will remain of type '?,
+which should be considered an error by the programmer.
+If a variable is declared using a rule that has no type, then it will
+become untyped, which prints out as no type at all.

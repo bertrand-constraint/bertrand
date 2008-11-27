@@ -1,0 +1,52 @@
+#include bag
+
+#op if 240 prefix
+#op then 250 left
+#op else 250 left
+
+if a then b else c { a -> b; ~a -> c }
+
+.. if width > 1 then cutwidth = 1 else cutwidth = width / 2;
+
+.. false ; a	{ "overconstrained object, error!" ; a }
+
+.. #trace
+
+main {
+
+width = 3 ;
+cutwidth = 1;
+
+height = 1.5;
+dropheight = 0.7;
+
+... declare numbers
+width: aNumber;
+cutwidth: aNumber;
+height: aNumber;
+dropheight: aNumber;
+stepwidth: aNumber;
+
+... declare lines
+left: aLine; right: aLine; bottom: aLine;
+step: aLine; drop: aLine; cut: aLine;
+
+... set origin of object
+left.begin.x = 0.5; left.begin.y = 0.5;
+... connect lines together
+step conn drop; drop conn cut; cut conn right;
+right conn bottom; bottom conn left; left conn step;
+.. constrain lines to be horizontal or vertical
+horiz step; horiz cut; vert drop;
+horiz bottom; vert right; vert left;
+... width & height
+widthof bottom = -width;
+heightof left = height;
+heightof drop = -dropheight;
+widthof step = stepwidth;
+stepwidth + cutwidth = width;
+... draw commands
+step! ; drop! ; cut! ; bottom! ; left! ; right! ;
+.. see if object is valid
+cutwidth < width & dropheight < height
+}

@@ -1,0 +1,9 @@
+... factorial
+#include beep
+
+#op fact prefix 900
+
+fact 1 { 1 }
+fact a'constant { a * fact (a-1) }
+
+main { fact 4 }

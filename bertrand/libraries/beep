@@ -1,0 +1,92 @@
+... Bertrand Elementary Equation Processor
+
+... The general form of a linear expression is:
+... (c1**v1) ++ (c2**v2) ++ ... ++ (cn**vn) ++ k
+... The c's and the k are constants.
+... The v's are initally variables, but when the variables become
+... bound they can be replaced by other linear expressions.
+
+#include bops
+
+... Type hierarchy:
+...	                               boolean -\
+...	++ -> linearop -/-> linear -/-> number -->-> expr
+...	        sterm -/    numop -/    string -/
+...
+... sterm, numop, boolean, and string are defined in bops
+
+#type 'expr				... any expression
+#primitive 'boolean supertype 'expr	... boolean expression
+#primitive 'string supertype 'expr	... string expression
+#type 'number supertype 'expr		... numeric expression
+#primitive 'numop supertype 'number	... numeric operators
+#type 'linear supertype 'number		... linear expression or term
+#type 'linearop supertype 'linear	... linear operator
+#primitive 'sterm supertype 'linear	... simple term
+
+#op	++	right	1010 'linearop	... linear expr
+#op	**	non	1020		... linear term
+
+	... quick and dirty
+n'numvar = k'constant ; rest	{ n is k ; rest }
+
+	... Creating linear expressions
+k'constant * v'numvar		{ k * ((1**v)++0) }
+v'numvar * k'constant		{ ((1**v)++0) * k }
+v'numvar + n'number		{ ((1**v)++0) + n }
+n'number + v'numvar		{ n + ((1**v)++0) }
+v1'numvar + v2'numvar		{ ((1**v1)++0) + ((1**v2)++0) }
+v'numvar = n'number		{ ((1**v)++0) = n }
+n'number = v'numvar		{ n = ((1**v)++0) }
+v1'numvar = v2'numvar		{ ((1**v1)++0) = ((1**v2)++0) }
+
+	... Standard form
+a'number - b'number		{ a + (-1 * b) }
+- a'number			{ -1 * a }
+a'number / k'constant		{ (1/k) * a }
+a'nonzero = b'number ; c'expr	{ 0 = a - b ; c }
+a'linearop = b'number ; c'expr	{ 0 = a - b ; c }
+.. a'numvar = b'number ; c'expr	{ 0 = a - b ; c }
+... lx'linear = k'constant ; rest   { 0 = lx - k ; rest }
+
+	... Moving terms together
+a'linear + (b'linear + c'numop)	{ (a + b) + c }
+a'numop + b'linear		{ b + a }
+a'linear * (b'linear * c'numop)	{ (a * b) * c }
+.. a'linear = b'linear + c'numop	{ c = a - b }
+.. a'linear = b'constant * c'numop	{ c = a/b }
+
+	... Nonlinear transformations
+a'constant = b ^ c'constant		{ a^(1/c) = b }
+a'constant = b / c			{ c~=0 ; b/a = c }
+
+
+#op lx_merge prefix 1000	... used for adding linear expr's
+
+... multiply a linear expression by a constant
+k'constant * ((c**v) ++ rest)	{ ((k*c)**v) ++ (k * rest) }
+((c**v) ++ rest) * k'constant	{ ((k*c)**v) ++ (k * rest) }
+
+... add a constant to a linear expression
+k'constant + ((c**v) ++ rest)	{ (c**v) ++ (k + rest) }
+((c**v) ++ rest) + k'constant	{ (c**v) ++ (k + rest) }
+
+... add two linear expressions
+((c1**v1'numvar)++r1) + ((c2**v2'numvar)++r2) {
+	lx_merge ( (1+(v1 lexc v2)), ((c1**v1)++r1) , ((c2**v2)++r2) }
+lx_merge( 0, (t1++r1) , lx2 ) { t1 ++ (r1 + lx2) }	.. less
+lx_merge( 2, lx1 , (t2++r2) ) { t2 ++ (lx1 + r2) }	.. greater
+lx_merge( 1, ((c1**v1)++r1) , ((c2**v2)++r2) ) {	.. equal
+	lx_merge ( (c1 = -c2), ((c1**v1)++r1) , ((c2**v2)++r2) }
+lx_merge(  true, (t1++r1) , (t2++r2) ) { r1 + r2 }
+lx_merge( false, ((c1**v1)++r1) , ((c2**v2)++r2) ) {
+	((c1+c2)**v1) ++ (r1 + r2) }
+
+... solving
+... "interesting" variables have not been implemented in this version
+0 = ((c**v'numvar) ++ rest'number) ; ex { (v is ((-1/c) * rest)) ; ex }
+
+... cleaning up after a bound variable
+... A bound variable can be replaced by a constant or a linear
+(c'constant ** k'constant) ++ rest { (c*k) + rest }
+(c'constant ** lx'linearop) ++ rest { (c*lx) + rest }

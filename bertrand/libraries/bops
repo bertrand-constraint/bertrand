@@ -1,0 +1,142 @@
+... Bertrand basic operator definitions.
+
+... Builtin types and operators:
+...	positive	positive numeric constants
+...	nonzero		numeric constants except zero
+...	constant	any numeric constant
+...	literal		string constants
+...	true false	the boolean constants
+
+... Types defined by bops:
+...	numvar		variables that represent numbers
+...	sterm		simple numeric variables and constants
+...	numop		arithmetic operators
+...	boolean		boolean expressions
+...	string		string expressions
+
+... Type hierarchy:
+...     positive -> nonzero -> constant -/-> sterm
+...                             numvar -/
+...
+...	<all numeric operators> -> numop
+...
+...     literal -> string
+...
+...     false -/-> boolean
+...     true -/
+
+#type 'sterm
+#type 'numvar supertype 'sterm
+#primitive 'constant supertype 'sterm
+#type 'numop
+#type 'string
+#primitive 'literal supertype 'string
+#type 'boolean
+#primitive true supertype 'boolean
+#primitive false supertype 'boolean
+
+... Actual constants (string and numeric) are only referred to by name.
+
+	... Operator Definitions:
+#op	( ) #1	outfix		... parentheses (special function)
+#op	[ ] #4	outfix		... don't evaluate (special function)
+#op	;	right	140	'numop		... assert
+#op	;;	postfix	160	'numop		... assert
+#op	:   #2	non	180	... label (special function)
+#op	is	non	220	'boolean	... binding
+#op	,	right	240	'numop		... list
+
+#op	->	right	420	'boolean	... implies
+#op	|	left	440	'boolean	... OR
+#op	~|	left	440 	'boolean	... NOR
+#op	&	left	460	'boolean	... AND
+#op	~&	left	460	'boolean	... NAND
+
+#op	=	non	520	'boolean	... EQ
+#op	~=	non	520	'boolean	... NEQ
+#op	>	non	520	'boolean	... GT
+#op	>=	non	520	'boolean	... GE
+#op	<	non	520	'boolean	... LT
+#op	<=	non	520	'boolean	... LE
+
+#op	~	prefix	540	'boolean	... NOT
+
+#op	!	postfix	580	'numop		... Output
+... #op	!	non	580	'numop		... Output to file
+
+#op	+	left	620	'numop		... Addition
+#op	-	left	620	'numop		... Subtraction
+#op	*	left	640  	'numop		... Multiplication
+#op	/	left	640	'numop		... Division
+
+#op	round	prefix	720	'numop		... Round to integer
+#op	floor	prefix	720	'numop		... greatest integer less than
+
+#op	sin	prefix	740	'numop		... Sine
+#op	cos	prefix	740	'numop		... Cosine
+#op	tan	prefix	740	'numop		... Tangent
+#op	atan	prefix	740	'numop		... Arctangent
+#op	^	right	760	'numop		... Raise to power
+
+#op	-	prefix	820	'numop		... Unary minus
+#op	^^	non	840	'numop		... Scientific notation
+
+#op	lexc	non	920	'numop		... compare variable names
+#op	trace	prefix	920	'numop		... debugging
+#op	rewrite	prefix	920			... rewrite completely
+#op	neg #3	prefix	960	... negate constant (special function)
+#op	aNumber	nullary 	... declare numeric variables
+
+... unused:  % @ $ \ ?
+
+	... Semicolon rules
+true ; a			{ a }
+(a;b) ; c			{ a ; b ; c }
+(a&b) ; c			{ a ; b ; c }
+a ;;				{ a ; true }
+	... Booleans
+a -> b				{ ~(a & ~b) }	... = (~a | b)
+a ~& b				{ ~(a & b) }
+a | b				{ ~(~a & ~b) }
+a ~| b				{ ~a & ~b }
+false & a			{ false }
+a & false			{ false }
+true & a			{ a }
+a & true			{ a }
+~true				{ false }
+~false				{ true }
+~~a				{ a }
+	... Relationals
+a > b				{ b < a }
+a >= b				{ b <= a }
+a ~= b				{ ~(a=b) }
+a'constant < b'constant		{ lessthan_primitive }
+a'constant <= b'constant	{ lessorequal_primitive }
+a'constant = b'constant		{ equality_primitive }
+	... Numbers
+aNumber				{ true } 'numvar
+a'constant + b'constant		{ addition_primitive }
+0 + b				{ b }
+a'constant - b'constant		{ subtraction_primitive }
+- b'constant			{ 0 - b }
+a'constant * b'constant 	{ multiplication_primitive }
+0 * b				{ 0 }
+1 * b				{ b }
+a'constant / b'nonzero 		{ division_primitive }
+0 / b				{ b~=0 ; 0 }
+a'constant ^ b'constant		{ power_primitive }
+a ^ 0				{ 1 }
+a ^ 1				{ a }
+a ^^ b				{ a * 10^b }
+	... Misc. Functions
+sin a'constant			{ sin_primitive }
+cos a'constant			{ cos_primitive }
+tan a'constant			{ tan_primitive }
+atan a'constant			{ atan_primitive }
+round a'constant		{ round_primitive }
+floor a'constant		{ floor_primitive }
+	... Builtins
+a'numvar lexc b'numvar		{ lexcompare_primitive }
+v'numvar is e			{ bind_primitive }
+	... Debugging
+trace a'constant		{ trace_primitive }

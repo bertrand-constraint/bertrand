@@ -1,0 +1,14 @@
+#include beep
+#operator aPoint
+#type 'point
+#operator aLine
+#type 'line
+#operator horiz prefix
+
+#trace		.. turn debugging on
+
+aPoint { x: aNumber ; y: aNumber; true } 'point
+aLine { p: aPoint ; q: aPoint; true } 'line
+horiz l'line {l.p.y = l.q.y}
+
+main { t: aLine; horiz t }

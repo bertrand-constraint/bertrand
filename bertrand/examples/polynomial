@@ -1,0 +1,7 @@
+#include beep
+
+
+main { p: aNumber; q: aNumber;
+    p = 3*q - 1*p - 5 ;
+    4 = q + 2 ;
+    p, q }

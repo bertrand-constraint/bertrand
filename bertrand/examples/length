@@ -1,0 +1,15 @@
+#include beep
+
+a'constant * (b'constant + c'number) { a*b + a*c }
+0 = a'constant + b'constant * c'linear ^ p'constant {
+    c = ((-1) * a / b) ^ (1/p) }
+
+main {
+    a: aNumber;
+    b: aNumber;
+    c: aNumber;
+    a^2 = b^2 + c^2;
+    a = 5;
+    c = 3;
+    b
+}

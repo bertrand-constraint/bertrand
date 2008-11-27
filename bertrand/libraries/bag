@@ -1,0 +1,27 @@
+#include beep
+
+#type 'point
+#type 'line
+#op aPoint nullary
+#op aLine nullary
+#op horiz 1500 prefix
+#op vert 1500 prefix
+#op conn 1500 non
+#op widthof 1500 prefix
+#op heightof 1500 prefix
+
+aPoint { x: aNumber; y: aNumber; true } 'point
+p'point = q'point { p.x = q.x & p.y = q.y }
+.. p'point + q'point { p.x + q.x @ p.y + q.y }
+
+aLine { begin: aPoint; end: aPoint; true } 'line
+l'line ! { ((l.begin.x,l.begin.y),(l.end.x,l.end.y)) ! }
+horiz l'line { l.begin.y = l.end.y }
+vert l'line { l.begin.x = l.end.x }
+line1'line conn line2'line { line1.end = line2.begin }
+widthof l'line { l.end.x - l.begin.x }
+heightof l'line { l.end.y - l.begin.y }
+
+... primitive calls
+((x1'constant, y1'constant),(x2'constant,y2'constant)) ! { line_primitive }
+(s'literal,(x'constant,y'constant)) ! { string_primitive }
