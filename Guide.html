@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Bertrand</title>
+</head>
+
+<body>
+<h1>Bertrand</h1>
+<h2>Introduction</h2>
+<p>Bertrand is a computer language that I wrote back in 1986. I also wrote a book about it, called &quot;Constraint Programming Languages&quot; that was fairly popular for a while. As a computer language, Bertrand has some interesting and unique features.</p>
+<p>There is a very primitive implementation of Bertrand available at http://leler.com/BERTRAND.zip</p>
+<p>There is also a Google Group for Bertrand at http://groups.google.com/group/bertrand-constraint</p>
+<p>There was a much more powerful version of Bertrand, but I wrote it on someone else's dime, so I had to rewrite it from scratch in order to distribute it. Recently, several people have started playing around with Bertrand again, probably because computers are now fast enough to execute Bertrand programs. You are welcome to play with it. There is a Google Group for discussing Bertrand http://groups.google.com/group/bertrand-constraint</p>
+<h2>Constraint languages</h2>
+<p>Constraint Languages are languages where you do not provide an algorithm for solving a problem. Instead, you place &quot;constraints&quot; on what the solution looks like, and let the computer figure out how to solve the problem. By necessity, constraint languages tend to be fairly domain specific, since the language interpreter needs to know how to solve problems.</p>
+<p>Bertrand looked at constraint languages another way. Bertrand itself is not a constraint language. Instead, it is a general problem solving language, which you can use to build constraint solving systems. A Bertrand program is a set of rules, which are executed to solve a problem. The rules are typically very domain specific. Bertrand itself knows absolutely nothing, other than how to execute rules. In fact, it doesn't even know how to do simple arithmetic.</p>
+<p>Bertrand comes with a few sets of rules. One of these is called &quot;bops&quot; which defines standard arithmetic operators and rules. Another library is beep, which is a simultaneous equation solver. These libraries are made up of Bertrand rules.</p>
+<h2>Primitives</h2>
+<p>Bertrand even does arithmetic as if it were interpreting rules. For example, if given the expression 2 + 2, Bertrand acts as if it has a rule that says to replace the expression 2 + 2 with the expression 4. This rule would look like this in Bertrand:</p>
+<p><code>2 + 2 { 4 }</code></p>
+<p>Of course, it would be unweidy to have billions of rules to define arithmetic, so the Bertrand interpreter has simple arithmetic built in.</p>
+<p>A rule has a head and a body. Rules can contain variables called parameters, which are local to the rule. For example,</p>
+<p><code>0 + x { x }</code></p>
+<p>This rule will rewrite 0 + 15 as 15.</p>
+<p>Here are the (complete) rules for Boolean arithmetic, from bops:</p>
+<p><code>a ~&amp; b				{ ~(a &amp; b) }<br />
+  a | b				{ ~(~a &amp; ~b) }<br />
+  a ~| b				{ ~a &amp; ~b }<br />
+  false &amp; a			{ false }<br />
+  a &amp; false			{ false }<br />
+  true &amp; a			{ a }<br />
+  a &amp; true			{ a }<br />
+  ~true				{ false }<br />
+  ~false				{ true }<br />
+  ~~a				{ a }</code></p>
+<h2>Constraints</h2>
+<p>With bops and beep, Bertrand is powerful enough to solve simple arithmetic constraints. A constraint to be solved by Bertrand is simply an expression. For example, here is a constraint to be solved:</p>
+<p><code>F = (1.8 * C) + 32<br />
+  0 = C<br />
+what is the value of F?</code></p>
+<p>In order to be solved by Bertrand, this must be written as a single expression, so we introduce the semicolon operator, which asserts that its left argument is true, and returns the value of its right argument:</p>
+<p><code>F = (1.8 * C) + 32 ; 0 = C ; F</code><br />
+</p>
+<p>Bertrand returns 32 as the value of this expression. Here's another one:</p>
+<p><code>F = (1.8 * C) + 32 ; F = C ; C</code></p>
+<p>Bertrand returns -40 as the value of this expression. Note that the equals sign is not used for assignment, and that simultaneous equations can be easily solved. In fact, the equals sign is used as in mathematics. The semicolon operator is what asserts something as true. Consider the following constraints:</p>
+<p><code>F = (1.8 * C) + 32 ; -40 = C ; F = C</code></p>
+<p>The value of this expression is "true". With the semicolon, the equals sign can be used both to assert that an equality is true (like assignment) and to test if something is true. There is no need for separate operators for assignment and testing for equality.</p>
+<h2>Variables</h2>
+<p>We have already seen <strong>parameters</strong>, used in rules. But Bertrand expressions can also contain  <strong>variables</strong>. In the last section, F and C were variables. Variables are initially unbound, but they can become bound during the execution of a Bertrand program. Bertrand follows single assignment semantics, so a variable can only have a single value bound to it, and that value never changes.</p>
+<p>Semantically, Bertrand treats binding variables as if a new rule was introduced. So for example, if the value 32 is bound to the variable F, this acts as if the following rule was added to the system:</p>
+<p><code>F { 32 }</code></p>
+<p>Note that F in the head of this rule is not a parameter, it is a litteral symbol (an atom). The symbol F is litterally replaced by the number 32.</p>
+<h2>Types</h2>
+<p>Bertrand also has types, including structures. For example, litteral numbers (like 2 and 3.14159) are all of type constant. In Bertrand, a type is written beginning with a single quote. So the following rule (from bops) is used to add numbers together:</p>
+<p><code>a'constant + b'constant { addition_primitive }</code></p>
+<p>Where &quot;addition_primitive&quot; is the built-in primitive for adding two numbers together. This rule matches the expression 2 + 3 since both 2 and 3 are of type 'constant.</p>
+<p>Within the body of a rule, you can declare new variables and give them a type. For example, here is a simple Bertrand program for solving a polynomial:</p>
+<p><code>main {<br />
+&nbsp;p: aNumber;<br />
+&nbsp;</code><code>q: aNumber;<br />
+&nbsp;p = 3*q - 1*p - 5 ;<br />
+&nbsp;4 = q + 2 ;<br />
+&nbsp;p, q<br />
+</code><code>}</code></p>
+<p>The &quot;aNumber&quot; operator is defined in bops as:</p>
+<p><code>#op	aNumber	nullary<br />
+aNumber				{ true } 'numvar</code></p>
+<p>Two new concepts here. First, a label can be placed in front of an expression (a variable name followed by a colon) to define a variable. Second, a rule can be given a type, which assigns that type to the variable name that was given in the label. For example, when <code>p: aNumber</code> is matched by the rule <code>aNumber				{ true } 'numvar</code> the varible p is created with type 'numvar. Note that as usual, none of this is built-in to Bertrand. the colon operator and the 'numvar type are defined in bops, and can be changed if you wish.</p>
+<p>Note that the aNumber operator is rewritten to be just &quot;true&quot;. See the section on structured types for more information on this.</p>
+<h2>The Simplicity of Bertrand</h2>
+<p>As mentioned earlier, Bertrand itself only knows how to interpret rules. Everything else has to be defined using rules, including arithmetic, declarations, and so on. So Bertrand itself is extremely simple.</p>
+<p>Since Bertrand is used to define constraint languages, you want it to have as simple a syntax as possible. In Bertrand, the only reserved characters are period, curly braces, the hash sign, and all three quote marks.</p>
+<p><code>. { } # ' ` &quot;</code></p>
+<p>That's it! All other characters are used to define variables and operators. Variables are alphanumeric strings (including the underscore character) that begin with an alphabetic character.</p>
+<p>Numbers are made up of digits and a single optional decimal point (for example, 5 or 3.14). Note that there are no negative litteral constants in Bertrand -- if you write -2 that is interpreted as the minus operator followed by a number. Likewise, there are no constants in scientific notation in Bertrand. To write such a number, use the ^^ operator defined in bops. For example, 2 ^^ 3 is the same as 2e3 in scientific notation, which is 2000. Likewise, -0.005 would be written as -5^^-3, where - and ^^ are operators,  not part of a litteral number.</p>
+<p>Pretty much everything else is an operator.</p>
+<p>In addition to being used as a decimal point, the period symbol is also used for compound names (for example, <code>rectangle.width</code>). And two (or more) periods in a row start a comment, which runs to the end of the current line.</p>
+<h2>Operators</h2>
+<p>There are no built-in operators in Bertrand. Even operators like + and = are defined using rules (in bops). The minus sign is not even built-in, not even in litteral numbers like -3). In fact, parentheses are defined as an operator -- they are not built-in to Bertrand. Operators can have names (like &quot;sin&quot; and &quot;round&quot;, or they can be made up of one or two non-alphanumeric characters (like <code>&gt;=</code> and <code>*</code>).</p>
+<p>Operators are classified by how many arguments they take:</p>
+<ul>
+  <li><em>nullary</em> operators take no arguments. For example, &quot;true&quot; is a nullary operator.</li>
+  <li><em>unary</em> operators take one argument. Unary operators can be prefix (<code>-x</code>), postfix (<code>5!</code>), or outfix (parentheses).</li>
+  <li><em>binary</em> operators take two arguments. Binary operators can be left associative (like <code>+</code> or <code>/</code>), right associative (like <code>-&gt;</code> or <code>;</code>), or non-associative (like | or &amp;).</li>
+</ul>
+<p>Note that a name or symbol can be used for more than one operator. For example, the minus sign is both a unary prefix operator (negation) and a binary left associative operator (subtraction).</p>
+<p>Many operators are defined in bops, but you can easily define additional operators. In fact, you are not required to use bops at all, and can define all your own operators. Bops itself is very readable -- feel free to take a look at it.</p>
+<p>Operators must be defined (using the Bertrand preprocessor) before they can be used in a rule. Bops contains lots of examples of the definition of operators.</p>
+<h2>Control Structures</h2>
+<p>Bertrand has a very simple and powerful conditional operator <code>-&gt;</code>, defined in bops:</p>
+<p><code>A -&gt; B				{ ~(A &amp; ~B) }</code></p>
+<p>That's it. Just one rule (along with the other rules for Boolean arithmetic, shown above). This is read as &quot;A implies B&quot; (where a and b are both Boolean expressions). As for conventional IF statements, the <code>-&gt;</code> operator says that if expression A is true, then expression B must also be true. In addition, like other operators in Bertrand, it works &quot;both ways&quot;. In other words, if we know that expression B is false, then Bertrand will assert that expression A must also be false.</p>
+<p>So, just like Bertrand is able to use the constraint <code>F = (1.8 * C) + 32</code> to determine the value of either F or C, the expression <code>A -&gt; B</code> allows us to determine either the value of A or B.</p>
+<p>If you don't like the syntax of Bertrand's conditional operator, you can change it of course, by defining three operators and one rule:</p>
+<p><code>#op if 240 unary prefix<br />
+  #op then 250 binary left<br />
+#op else 250 binary left<br />
+if a then b else c { a -&gt; b; ~a -&gt; c }</code></p>
+<p>Bertrand has no iteration control structures (<strong>for</strong> or <strong>while</strong> loops). Instead, rules are allowed to be recursive. Here are the rules to calculate  factorials (from the example &quot;factorial&quot;):</p>
+<p><code>fact 1 { 1 }<br />
+fact a'constant { a * fact (a-1) }</code></p>
+<p>If you want, you could define your own interation operators.</p>
+<h2>Structured Types</h2>
+<p>Other languages call these &quot;user defined types&quot;, but in Bertrand, all types are &quot;user defined&quot;, including numbers and such. But the same facilities that are used to declare variables can be used to define structured types. For example, to define a datatype for a two-dimentional point:</p>
+<p><code>#op aPoint nullary<br />
+#type 'point</code></p>
+<p><code>aPoint { x: aNumber ; y: aNumber; true } 'point</code><br />
+</p>
+<p>The aPoint operator is the constructor for a point, of type 'point. There is no data hiding in Bertrand, so you can access any member of a structured type:</p>
+<p><code>p: aPoint;<br />
+  p.x = 5;<br />
+p.y = 12;</code></p>
+<p>The first line creates an object of type point, and the other two lines set the point's x and y values. Note that constructor operators do not have to be nullary, they can take one or two arguments that are used to initialize the new object.</p>
+<p><code>#op newpoint binary<br />
+xx newpoint yy { x: aNumber ; y: aNumber ; x = xx ; y = yy ; true }</code></p>
+<p>Finally, note that our object constructing rules all return true. Instead, we can apply constraints to datatypes. For example, we could specify a constructor for a point that lies in the first quadrant, by replacing the final &quot;true&quot; with the expression &quot;x &gt; 0 &amp; y &gt; 0&quot;.</p>
+<h2> Rules and Constraints</h2>
+<p>A Bertrand program consists of two things: a set of rules that define a constraint solver, and a set of constraints that is solved. Bertrand merges these two sets using the common trick of having a special rule whose head is the single operator &quot;main&quot;. We saw an example of this in the section on types. Initially, Bertrand is given a set of rules, and the set of constraints is  a single constraint containing the &quot;main&quot; operator. This single constraint matches the rule whose head is &quot;main&quot; and replaces the set of constraints with the body of that rule.</p>
+<p>In Bertrand, the set of constraints is written as a single expression. Individual constraints are typically separated by the semicolon operator (which really is an operator, not a statement terminator as in C or a statement separator as in Pascal). So a typical set of constraints will look like:</p>
+<p><code><em>constraint1</em> ; <em>constraint2</em> ; <em>constraint3</em> ; <em>result</em></code></p>
+<p>For example,</p>
+<p><code>F = (1.8 * C) + 32 ; F = C ; C</code></p>
+<p>which contains two constraints and whose result is the value of C. Again, there is nothing special about the semicolon operator, the above program is completely equivalent to</p>
+<p><code>F = (1.8 * C) + 32 &amp; F = C ; C</code></p>
+<p>Here the two constraints are separated by the AND operator instead of the semicolon.
+<h2>Writing Rules</h2>
+<p>The  purpose of rules in Bertrand is to solve a set of constraints. So in general, when you write rules, the rules should simplify the constraints. The main way to do this is to convert the constraint expression into a <strong>normal form</strong>. For example, the simultaneous equation solver puts equations into a normal form called an <strong>ordered linear expression</strong>. Look at the rules in beep to see how Bertrand does this.
+<p>A simpler example are the rules for Boolean algebra (which are found in bops). The rules convert Boolean expressions into normal form by converting expressions containing the OR operator &quot;|&quot; into equivalent expressions containing only the AND &quot;&amp;&quot; and NOT &quot;~&quot; operators.
+<p>Another thing to remember is to avoid writing rules that never terminate. For example, you might be tempted to write a rule that expresses that addition is commutative:
+<p><code>a + b { b + a }</code>
+<p>But such a rule will continue matching forever. Instead, the equation solver in beep uses a trick that orders variable names lexicographically. Thus the expression z + p will be rewritten by beep to put the variable names in alphabetical order p + z (but p + z will never be rewritten into z + p). This allows the equation solver to put expressions into normal form using the associative property of addition, without getting into infinite loops.
+</body>
+</html>
