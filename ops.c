@@ -40,9 +40,7 @@ OP *
 op_new(pl)
 int pl;		/* length of print name (not counting null) */
 {
-#ifndef __STDC__
-char *malloc();
-#endif
+void *malloc();
 int asize;	/* number of bytes to allocate */
 OP *op;
 

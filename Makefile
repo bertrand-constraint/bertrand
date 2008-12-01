@@ -5,11 +5,12 @@
 # Make sure the variable LIBDIR is set to where you want your
 # include files to live (e.g., beep, bops and bag).
 
-CFLAGS = -O -DLIBDIR='"$(HOME)/bert/libraries/"'
+CFLAGS = -O -DLIBDIR='"libraries/"'
 
 # NeWS cps graphics library.
-# GRAPHLIB = $(NEWSHOME)/lib/libcps.a
+# GRAPHLIB = -lm $(NEWSHOME)/lib/libcps.a
 # GRAPHOBJ = graphics.o
+GRAPHLIB = -lm
 GRAPHOBJ = graphicsnull.o
 
 SRCS = expr.c names.c ops.c parse.c prep.c rules.c primitive.c\
@@ -18,7 +19,7 @@ OBJS = expr.o names.o ops.o parse.o prep.o rules.o primitive.o\
 	scanner.o main.o util.o match.o
 
 bert: $(OBJS) $(GRAPHOBJ)
-	cc $(CFLAGS) -o bert $(OBJS) $(GRAPHOBJ) -lm $(GRAPHLIB)
+	cc -O -o bert $(OBJS) $(GRAPHOBJ) $(GRAPHLIB)
 
 graphicsnull.o: graphicsnull.c
 	cc $(CFLAGS) -c graphicsnull.c

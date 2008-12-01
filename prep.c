@@ -153,10 +153,8 @@ short arity;
 register int l;		/* length of name */
 int class;
 OP *op;
-#ifndef __STDC__
-OP *op_new();		/* from ops.c */
-void op_put();		/* from ops.c */
-#endif
+OP *op_new(int);		/* from ops.c */
+void op_put(OP **, OP *op);		/* from ops.c */
 
 class = trans[opn[0]];
 if (C_ALPH == class) {		/* alphanumeric operator */
@@ -447,9 +445,8 @@ register OP *ty;
 register char *tok;
 int len;
 OP *sop;
-#ifndef __STDC__
-OP *op_new();		/* from ops.c */
-#endif
+OP *op_new(int);		/* from ops.c */
+void op_put(OP **, OP *op);		/* from ops.c */
 
 tok = token_get();
 if (tok[0] != '\'') {
@@ -650,7 +647,7 @@ char loadable_in_libraries[max_filename_size];
 sprintf(loadable_in_libraries, "libraries/%s", tok);
 char loadable_in_libdir[max_filename_size];
 sprintf(loadable_in_libdir, "%s/%s", libdir, tok);
-const char *loadables[] = {
+char *loadables[] = {
     tok,
     loadable_in_libraries,
     loadable_in_libdir,

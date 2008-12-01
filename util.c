@@ -105,9 +105,7 @@ static SNODE *all_st_mem = NULL;	/* pointer to all stack memory */
 SNODE *
 st_get()
 {
-#ifndef __STDC__
-char *malloc();
-#endif
+void *malloc();
 SNODE *temp;		/* node to be allocated to stack */ 
 
 if (!st_mem) {
@@ -194,9 +192,7 @@ char *s;
 {
 char *t;	/* new character string */
 int ss;		/* size of argument string s */
-#ifndef __STDC__
-char *calloc();
-#endif
+void *calloc();
 
 ss = strlen(s) + 1;	/* one extra for null terminator */
 t = (char *) calloc(ss, sizeof(char));
@@ -235,6 +231,8 @@ char *s;
 {
 extern int lineno, charno;	/* from scanner.c */
 extern char *infilename;
+void exit(int);		/* UNIX system routine */
+
 fflush(stdout);
 if (lineno) {
     if (charno == 0) fprintf(stderr, "file %s, line %d: ", infilename, lineno-1);

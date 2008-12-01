@@ -26,9 +26,7 @@ void
 subject_push(old)
 NODE *old;		/* old subject expression */
 {
-#ifndef __STDC__
-char *malloc();
-#endif
+void *malloc();
 register SUB_STACK *node;
 
 node = (SUB_STACK *) malloc(sizeof(SUB_STACK));
@@ -58,6 +56,33 @@ return exp;
 
 /******************************************************************
  *
+ * Find a rule that matches an expression.
+ *
+ * entry:	an expression
+ *
+ * exit:	returns the rule that matched
+ *		return NULL if no rule matches this expression.
+ *		Does not try to match against subexpressions.
+ *
+ ******************************************************************/
+static RULE *
+match(exp)
+NODE *exp;	/* the expression to match */
+{
+int match_sub(register NODE *, register NODE *);	/* forward reference */
+register RULE *rtt;	/* rule to try */
+
+/* this assumes that the root of all rule heads are terms */
+if (!(exp->op->arity & OP_TERM)) return (RULE *) NULL; 
+
+for(rtt = exp->op->hash; rtt; rtt = rtt->next) {
+    if (match_sub(rtt->head, exp)) return rtt;
+    }
+return (RULE *) NULL;	/* no rule matched */
+}
+
+/******************************************************************
+ *
  * See if a parameter with a guard matches its argument
  *
  ******************************************************************/
@@ -78,7 +103,7 @@ return FALSE;
  * TO DO:	Works recursively, SHOULD USE THE STACK.
  *
  ******************************************************************/
-static int
+int
 match_sub(head, exp)
 register NODE *head;		/* pattern to match against */
 register NODE *exp;		/* subexpression to match */
@@ -130,35 +155,6 @@ error("Unknown arity during pattern match!");
 return FALSE;	/* will never execute */
 }
 
-/******************************************************************
- *
- * Find a rule that matches an expression.
- *
- * entry:	an expression
- *
- * exit:	returns the rule that matched
- *		return NULL if no rule matches this expression.
- *		Does not try to match against subexpressions.
- *
- ******************************************************************/
-static RULE *
-match(exp)
-NODE *exp;	/* the expression to match */
-{
-#ifndef __STDC__
-int match_sub();	/* forward reference */
-#endif
-register RULE *rtt;	/* rule to try */
-
-/* this assumes that the root of all rule heads are terms */
-if (!(exp->op->arity & OP_TERM)) return (RULE *) NULL;
-
-for(rtt = exp->op->hash; rtt; rtt = rtt->next) {
-    if (match_sub(rtt->head, exp)) return rtt;
-    }
-return (RULE *) NULL;	/* no rule matched */
-}
-
 /*************************************************************
  *
  * Walk the tree, looking for subexpressions that match a rule
@@ -202,6 +198,7 @@ for (;;) {	/* for ever */
 	if ((mrule->verbose + verbose)>1) {
 	    fprintf(stderr, "MATCH: ");
 	    rule_print(mrule);
+	    fprintf(stderr, "  REWRITE: ");
 	    expr_print(subject);
 	    fprintf(stderr, " ==> ");
 	    }

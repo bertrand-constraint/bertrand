@@ -32,6 +32,7 @@ void graphics_close();		/* from graphics.c */
 extern int graphics;		/* from graphics.c */
 void st_mem_free();		/* from util.c */
 char *getenv();			/* UNIX system routine */
+void exit(int);			/* UNIX system routine */
 
 int argno = 1;			/* command line argument */
 NODE *subject;			/* subject expression */
