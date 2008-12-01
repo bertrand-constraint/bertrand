@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Bertrand Reference</title>
+</head>
+
+<body>
+<h1>Documentation for  Bertrand 88<br />
+</h1>
+<p> <em>Wm Leler</em></p>
+<p>Bertrand 88 is copyright &copy; 1988 Wm Leler.</p>
+<p>By using this software, you agree to the following:</p>
+<ul>
+  <li>That  you  will not  redistribute  this  software  without including this document and the copyright notice.</li>
+  <li>That you  will not  sell this  software,  modifications of this software,  or any derived software for commercial gain.</li>
+</ul>
+<p>The purpose of this distribution is  to  encourage  research into constraint languages.  Please help this effort along by reporting (or preferably fixing) bugs as you find them.</p>
+<p>I certainly do not view Bertrand as  the  &quot;ultimate&quot;  constraint  language &#8212; rather I hope it is a first step towards more generally  useful  constraint  languages.   I  honestly enjoy using it, but much of my appreciation comes from prior spells of effort and frustration spent  building  constraint languages  by hand.  You, having had an easy life, might not instantly appreciate some of  the  finer  points,  and  (not being  constrained by those experiences) might even think of better ways to do some things. This is exactly why you  have this software.  Rewrite it.  Change it.  Make it useful.</p>
+<p>To use Bertrand, you should have a copy of the  book  &quot;Constraint  Programming Languages: Their Specification and Generation&quot; published by Addison-Wesley, 1988.  This  document explains   some  of  the  differences  between  the  current software and that described in the book, and also  discusses how to modify the interpreter for special purposes.</p>
+<p>This  software  is  a  complete  rewrite  of  the   software described in the book, and contains some differences (mostly minor).  Two of these differences affect mainly the speed of the interpreter:</p>
+<ul>
+  <li>This version of Bertrand does not  use  the  fast  pattern matching  algorithm  of Hoffmann and O'Donnell (described in Chapter 7).  That algorithm made it difficult to modify  the rule  set dynamically.  Also for typical uses it took longer to preprocess the rules than to run them.  This change means that  rules no longer have to obey &quot;strict left sequentiality&quot;.  Unfortunately, it also means that it is much  easier to write rules that get into infinite loops.</li>
+  <li>This version of the interpreter  actually  implements  the &quot;is&quot;  operator,  and  the  linear equation solver (written entirely in Bertrand) really does use it!  Consequently, the equation  solver runs more slowly, but it is much easier now to change the equation solver  to  try  out  more  ambitious equation  solving  rules  (since they are not implemented in C).  If you want to implement part of the equation solver in C,  there  are  some  routines in mole.c that you might find useful.</li>
+</ul>
+<p>One point in the book bears repeating.  Do not think of Bertrand  as  a  general-purpose problem-solving system.  It is very easy to throw problems at Bertrand that it cannot  possibly  solve.   A  common  mistake is to try to use Bertrand like a logic programming language such  as  Prolog  (I  view this  as a deficiency, and would love to see someone combine Bertrand with a logic programming language).   To  use  Bertrand  effectively  you <em>really must understand how Augmented Term Rewriting works</em>.</p>
+<p>A final warning.  Like  most    software,  the  ultimate guide  to  Bertrand is the source, and the best way to learn how to use it is to start with the  examples  and  build  on them.  Good luck!</p>
+<h2>Using Bertrand</h2>
+<p>Bertrand is typically used in conjunction with one  or  more libraries:</p>
+<ul>
+  <li><strong>bops</strong>, the standard Bertrand  operator  definitions,  which defines most of the operators that typical Bertrand programs will use.</li>
+  <li><strong>beep</strong>, the Bertrand elementary equation processing library, which defines operators and rules for solving equations.</li>
+  <li><strong>bag</strong>, the Bertrand graphics library.</li>
+</ul>
+<p>These libraries are included  explicitly  in  Bertrand  programs, as desired, using the #include directive (see discussion on the preprocessor, below).</p>
+<p>To invoke Bertrand, type:</p>
+<p> bert <em>filename</em></p>
+<p>Where <em>filename</em> is a file  containing  your  rules.   One  of these  rules  should be the <em>main</em> rule - its head should consist of the single operator &quot;main&quot;.   Alternatively,  Bertrand  can  be  run in a pipeline, by feeding the rules into standard input.  Bertrand will run until there are  no  mor rewrites  to  be  done, and then print out the final subject expression.</p>
+<h2>Syntax</h2>
+<p>Since the primary purpose of Bertrand  is  to  define  other languages,  it  is important for it to have as little syntax as possible.  Bertrand understands the following input:</p>
+<ul>
+  <li>Alphanumeric  names,  including  upper  and  lower   case letters,  numeric  digits,  and  underscore (_).  Names must begin with an alphabetic character.</li>
+  <li>Numbers, containing only numeric  digits  and  possibly  a single decimal point.  Note that negative numbers and scien tific notation must be defined using rules (which they  are, in beep).  See the discussion on matching numbers, below.</li>
+  <li>Whitespace, which is used to delimit  alphanumeric  names. Includes  space,  tab,  newline, and the formfeed character. Formfeeds can be freely inserted to  force  page  breaks  in Bertrand programs.</li>
+  <li> Other characters, which are anything else except  reserved characters.   These  characters  are used to make one or two character operator names, for example: <code>+  &gt;=  &amp;  -&gt;</code> .</li>
+  <li>The only reserved characters  are  the  period,  left  and right  curly  braces,  the  hash  sign,  and all three quote marks.  The multitalented period is used as a decimal  point (for  example,  the  number 3.14), to delimit compound names (for example, the name rectangle.width), and  for  comments, which  begin  with  two or more adjacent periods, and run to the end of the line.  As a  matter  of  style,  an  ellipsis (three  periods) is often used to begin comments to set them off better.  Curly braces  ({})  are  used  to  enclose  the bodies of rules.  The hash sign (#) is used to begin preprocessor statements.  Single quotes (') are used to begin type names.   Double  quotes  (&quot;)  are  used  to delimit strings. Within strings, back quotes (`) are used for special characters, as follows:<br />
+    <br />
+    
+    <table width="341" border="0">
+      <tr>
+        <td width="27"><code>`b</code></td>
+        <td width="304">backspace</td>
+      </tr>
+      <tr>
+        <td><code>`f</code></td>
+        <td>formfeed</td>
+      </tr>
+      <tr>
+        <td><code>`n</code></td>
+        <td>newline</td>
+      </tr>
+      <tr>
+        <td><code>`r</code></td>
+        <td>carriage return</td>
+      </tr>
+      <tr>
+        <td><code>`t</code></td>
+        <td>tab</td>
+      </tr>
+      <tr>
+        <td><code>`&quot;</code></td>
+        <td>double quote (that doesn't end the string)</td>
+      </tr>
+      <tr>
+        <td><code>``</code></td>
+        <td>back quote</td>
+      </tr>
+    </table>
+  </li>
+</ul>
+<p>To change any of the above, see the file scanner.c.<br />
+</p>
+<h2>The Preprocessor</h2>
+<p>All preprocessor statements begin with a hash  sign  (#)  in the  first column and run to the end of the line.  A preprocessor statement may contain a  comment  (which  necessarily terminates   the  preprocessor  statement).   The  following preprocessor statements are recognized:</p>
+<p>#operator <em>definition</em><br />
+  #op <em>definition</em><br />
+  Used to define an operator.  All operators must  be  defined to  the  system, otherwise they are assumed to be variables. Within  operator  definitions  the  following  keywords  are recognized:</p>
+<table width="385" border="0">
+  <tr>
+    <td width="92">nullary</td>
+    <td width="283">nullary</td>
+  </tr>
+  <tr>
+    <td>unary</td>
+    <td>unary</td>
+  </tr>
+  <tr>
+    <td>prefix</td>
+    <td>unary prefix</td>
+  </tr>
+  <tr>
+    <td>postfix</td>
+    <td>unary postfix</td>
+  </tr>
+  <tr>
+    <td>outfix</td>
+    <td>unary outfix</td>
+  </tr>
+  <tr>
+    <td>matchfix</td>
+    <td>unary outfix</td>
+  </tr>
+  <tr>
+    <td>binary</td>
+    <td>binary infix</td>
+  </tr>
+  <tr>
+    <td>infix</td>
+    <td>binary infix</td>
+  </tr>
+  <tr>
+    <td>left</td>
+    <td>binary infix left associative</td>
+  </tr>
+  <tr>
+    <td>right</td>
+    <td>binary infix right associative</td>
+  </tr>
+  <tr>
+    <td>non</td>
+    <td>binary infix nonassociative</td>
+  </tr>
+  <tr>
+    <td>nonassociative</td>
+    <td>binary infix nonassociative</td>
+  </tr>
+  <tr>
+    <td>associative</td>
+    <td>(usually preceded by the keyword &quot;non&quot;)</td>
+  </tr>
+  <tr>
+    <td>precedence</td>
+    <td>(usually followed by a number)</td>
+  </tr>
+  <tr>
+    <td>supertype</td>
+    <td>(usually followed by a typename)</td>
+  </tr>
+</table>
+<p>Most of these keywords are optional.  The default  arity  is nullary.   Unary  operators default to prefix.  Infix operators default to nonassociative. Outfix operators  must  have two  operator  names,  and  do  not  need to be given a precedence.  Precedence values are completely arbitrary  &#8212;  see bops  for  some  ideas.   Special  functions (see below) are indicated by a hash sign (#)  followed  by  a  number.   For examples  of  operator definitions, see the libraries, especially bops.</p>
+<p>#primitive <em>definition</em><br />
+  Used to give a supertype to an  operator  or  type  that  is already known to the system.  For example:</p>
+<p> #primitive true supertype 'boolean<br />
+defines the operator &quot;true&quot; to be a subtype  of  'boolean. The keyword &quot;supertype&quot; is optional.  Note that the operator or type need not be truly primitive.  For example,  beep uses  this directive to give supertypes to some of the types defined in bops.</p>
+<p>#type <em>definition</em><br />
+Used to define a type, which must begin with a single quote. A  type may optionally have a single supertype.  The keyword &quot;supertype&quot; is optional.</p>
+<p>#include <em>filename</em><br />
+  Reads input from <em>filename</em>, and when done resumes reading the current  file.   These may be nested to a depth of 16 files. The filename may be enclosed in double quotes if it contains any  spaces,  in  which  case  it may not contain any double quotes.</p>
+<p>#trace <em>number</em><br />
+  #quiet<br />
+  Turn tracing on and off.  The argument to trace is the level of  tracing,  where  #trace 0 is the same as #quiet.  If the argument is omitted, it defaults to 1.  See  the  discussion of tracing, below.</p>
+<p>#line <em>number</em><br />
+  Used to change the line number that Bertrand  thinks  it  is reading.   Only affects error messages.  Typically used only by programs that generate Bertrand code.</p>
+<p>Look in bops, beep and  bag  for  examples  of  preprocessor statements.  The  file  prep.c contains the code that interprets these statements.</p>
+<h2>Special Functions</h2>
+<p>Some operators can be defined to be special  &#8212;  they  invoke special  functions  in  the Bertrand interpreter.  There are two types of  special  functions,  those  performed  by  the parser  (at  the  time the input file is read in), and those performed at run time.  All of the parse-time functions, and one  run-time  function, are fundamental to the operation of the Bertrand interpreter.  These functions are as follows:<br />
+</p>
+<ol>
+  <li>Parser reduce  function  to  throw  an  operator  away.
+    Defined   in  bops  to  be  parentheses.   This  allows
+    parentheses to be used for grouping,  without  actually
+    appearing  in  the  parsed  expression.  Can be used to
+    make any operator be a no-op.</li>
+  <li>Parser reduce function for labels.  Defined in bops  to be  a  colon (:).  A label is used to give a name to an object, or to provide access to the local variables  of a rule.</li>
+  <li>Parser reduce function to  negate  a  constant  number. This  function  is  only required because of an obscure problem with numbers that might get cured in  a  future release.   See  the  discussion  on  matching  numbers, below.</li>
+    <li>Run-time function to prevent evaluation of a subexpression.   Defined  in  bops  to  be square brackets ([]). Prevents the pattern matcher from searching  its  argu ment for redexes.  Normal Bertrand rules can be used to remove the brackets (which can  themselves  be  pattern<br />
+  matched), as in the following rules:<br />
+  <code>eval [ expr ] { expr }<br />
+  if true then [ truepart ] else  [  falsepart  ]  { truepart }<br />
+  if false then [ truepart ] else [  falsepart  ]  { falsepart }</code><br />
+  Warning: this is a procedural  hack  to  Bertrand  that should  only  be used to gain execution speed.  In particular, none of the examples or libraries use this.</li>
+</ol>
+<p>These special functions can be assigned to  specific  operators  in  operator  definitions with a hash sign followed by the special operator number.  Here is the line from bops that defines parentheses to be thrown away.</p>
+<p><code>#op	( ) #1	outfix</code></p>
+<p>See bops for other examples.</p>
+<p>It is also possible to write a C function and assign it to a specific operator.  This has already been done in the interpreter for such things as the addition primitive for  adding two  numbers  together,  and the graphics primitives.  It is relatively straightforward to add your own primitives.  Look in the file primitive.c to see how this is done.</p>
+<p>The graphics primitives call routines in graphics.c, written for  Sun's  NeWS  window  system.   These routines, however, would be very easy to port over to some other window system, if  desired.</p>
+<h2>Matching Numbers</h2>
+<p>In the attempt to keep Bertrand as  simple  as  possible,  a strange  problem  with  numbers  was  created.  The Bertrand scanner only recognizes positive numbers, possibly  containing  a single decimal point.  For example, what might appear to be the negative constant -3, is actually  a  unary  minus sign (an operator) followed by the positive constant 3.  The effect of this is that negative numbers cannot  be  used  in the  head  of a rule.  In the body of a rule, of course, the above will be immediately rewritten into a negative  number. Used  in  the head of a rule, however, it causes Bertrand to search (literally) for the pattern of a minus sign  followed by a positive number, which it will never find.</p>
+<p>The same problem applies to numbers in Bertrand's  (somewhat different)  scientific  notation.  In beep, the double caret (^^) operator is defined using the rule</p>
+<p> <code>a ^^ b  { a * 10^b }</code></p>
+<p>Consequently, the number <code>-25^^-3</code>  is  really  an  expression containing  two  numbers  and three operators, which will be rewritten (by beep) into the number -0.025.  (Note  that  we could  define an operator &quot;e&quot; to allow the above number to be written as <code>-25e-3</code>).</p>
+<p>A temporary solution was implemented  as  a  special  parser reduce  function  that  negates  its argument at parse time. This function is usually assigned to  the  name  &quot;neg&quot;  in bops.   Thus  the  expression  &quot;neg  3&quot; is changed (by the parser) into the constant  -3.   No  corresponding  fix  was deemed  necessary  for numbers in scientific notation, since it is usually a very bad idea  to  try  to  do  a  pattern  match against anything other than an integer.</p>
+<p>The real solution is to change  the  scanner  to  treat  the minus sign as a (possibly) reserved character to be used for negative numbers.  This would mean, however, that <code>- 3</code>  (with a  space)  and  <code>-3</code>  (no  space) would parse differently.  We could also use the standard convention for scientific  notation  and  treat  the  characters &quot;e&quot; and &quot;E&quot; specially. Note that since we use the C library functions for printing, numbers already print out in this form.</p>
+<p>The code for all this nonsense is in scanner.c.</p>
+<h2>Tracing</h2>
+<p>When tracing is off, Bertrand  only  prints  out  the  fully transformed subject expression when it is done running.  The preprocessor statements #trace and #quiet  can  be  used  to print out diagnostic information about a sequence of rewritings.</p>
+<p>Tracing is an attribute of  specific  rules  &#8212;  the  tracing value  of  a rule is the value in effect when it was parsed. At parse time, traced rules  are  printed  out,  along  with their  local  name  spaces.   At  run time, traced rules are printed out when they are matched, along with  the  complete subject expression both before and after the rewrite.</p>
+<p>The state of  tracing  is  actually  a  numeric  value,  and whether  a rule is traced is actually a function of both the state of tracing when the rule  was  parsed,  and  when  the match  is  made.  At run time, the tracing value of the rule and the current tracing value are added together.   If  this number  is  greater  than two, then the rule is traced.  For example, consider the following set of rules:</p>
+<p> <code>#trace 0<br />
+  ruleA { body }<br />
+  #trace 1<br />
+  ruleB { body }<br />
+  #trace 2<br />
+  ruleC { body }<br />
+  #trace</code><br />
+</p>
+<p>At run time, tracing is (initially) as the parser  left  it, in  this  case  1,  so  rules  B  and  C will be traced.  If instead, tracing is set to 0 (perhaps  using  #quiet),  then rule  C  will  still be traced.  But if tracing is set to 2, then all rules will be traced.  At run time, tracing can  be changed  dynamically  using  the  &quot;trace&quot;  operator, which takes a single numeric argument.  Finally,  if  a  file  has tracing on, then any file it #includes will (initially) have the same tracing value, but changes made to the  tracing  in the  #included  file will not affect tracing in the original file.</p>
+<h2>Types</h2>
+<p>When expressions are printed out by Bertrand,  the  type  of each variable will be printed.  Initially, all variables are undeclared, which prints out as the type <code>'?</code>.   In  Bertrand, variables  are declared using object-constructing rules.  If a variable is never declared  by  the  programmer,  it  will remain  of  type  '?, which should be considered an error by the programmer.  If a variable is declared using a rule that has  no  type, then it will become untyped, which prints out as no type at all.<br />
+</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p> January 26, 1988</p>
+</body>
+</html>
