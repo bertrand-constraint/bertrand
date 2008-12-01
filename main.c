@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "def.h"
 
 int verbose;
@@ -81,6 +80,4 @@ do {
 	}
 
     } while(++argno<argc);
-
-    return 0;
 }
