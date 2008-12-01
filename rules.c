@@ -82,7 +82,7 @@ NODE *head, *body;
 OP *tag;
 NAME_NODE *names;		/* local name space */
 {
-char *malloc();
+void *malloc();
 void rule_print();		/* forward reference */
 register RULE *rr;
 RULE *cr, *pr = NULL;		/* used to insert rule into list */
@@ -155,12 +155,13 @@ RULE *rp;
 void expr_print();		/* from expr.c */
 void name_space_print();	/* from names.c */
 
+fprintf(stderr, " RULE: ");
 expr_print(rp->head);
 fprintf(stderr, " { ");
 expr_print(rp->body);
 fprintf(stderr, " }");
 if (rp->tag) fprintf(stderr, " '%s", rp->tag->pname);
-fprintf(stderr, "\t");
+fprintf(stderr, " NAMESPACE: ");
 name_space_print(rp->space);
 fprintf(stderr, "\n");
 }

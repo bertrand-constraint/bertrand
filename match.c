@@ -26,7 +26,7 @@ void
 subject_push(old)
 NODE *old;		/* old subject expression */
 {
-char *malloc();
+void *malloc();
 register SUB_STACK *node;
 
 node = (SUB_STACK *) malloc(sizeof(SUB_STACK));
@@ -69,7 +69,7 @@ static RULE *
 match(exp)
 NODE *exp;	/* the expression to match */
 {
-int match_sub();	/* forward reference */
+int match_sub(register NODE *, register NODE *);	/* forward reference */
 register RULE *rtt;	/* rule to try */
 
 /* this assumes that the root of all rule heads are terms */
@@ -103,7 +103,7 @@ return FALSE;
  * TO DO:	Works recursively, SHOULD USE THE STACK.
  *
  ******************************************************************/
-static int
+int
 match_sub(head, exp)
 register NODE *head;		/* pattern to match against */
 register NODE *exp;		/* subexpression to match */
@@ -198,6 +198,7 @@ for (;;) {	/* for ever */
 	if ((mrule->verbose + verbose)>1) {
 	    fprintf(stderr, "MATCH: ");
 	    rule_print(mrule);
+	    fprintf(stderr, "  REWRITE: ");
 	    expr_print(subject);
 	    fprintf(stderr, " ==> ");
 	    }

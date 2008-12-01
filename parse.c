@@ -30,6 +30,8 @@ static NAME_NODE *rule_names = NULL;	/* local names for this rule */
  * Print a parse stack.	(for debugging)
  *
  ***********************************************************************/
+void expr_print(NODE *p);
+
 void
 ps_print(st)
 SNODE *st;
