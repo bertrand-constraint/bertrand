@@ -1,5 +1,5 @@
+#trace
 #include beep
-
 
 main { p: aNumber; q: aNumber;
     p = 3*q - 1*p - 5 ;

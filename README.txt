@@ -1,7 +1,7 @@
 Source for Bertrand '88 Beta distribution.
 
 The documentation has been converted from troff to html. See
-Reference.html and Guide.html.
+Documentation.html and Guide.html.
 
 The directory "libraries" contains the bertrand libraries, and
 the directory "examples" contains a small number of examples.

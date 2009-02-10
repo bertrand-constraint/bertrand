@@ -194,6 +194,11 @@ switch(which) {
 	fprintf(stderr, "variable: %s\n", ((NAME_NODE *)(tn->left))->pval);
 	error("attempt to bind a value to an already bound variable");
 	}
+	if (name_in_expr(tn->right, (NAME_NODE *)tn->left)) {
+    fprintf(stderr, "variable: %s; expr: ", ((NAME_NODE *)(tn->left))->pval);
+    expr_print(tn->right);
+	error("\nbound expression contains variable to which it is being bound");
+	}
     ((NAME_NODE *)(tn->left))->value = expr_copy(tn->right);
     bondage = TRUE;	/* need to replace bound variable */
     break;

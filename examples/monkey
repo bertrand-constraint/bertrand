@@ -1,0 +1,64 @@
+.. Brainteaser from "Games for the Super-Intelligent" by Jim Fixx
+..
+.. A rope lying over the top of a fence is the same length on each side.
+.. It weighs one third of a pound per foot. On one side hangs a monkey
+.. holding a banana, and on the other end a weight equal to the weight
+.. of the monkey. The banana weighs two ounces per inch. The rope is as
+.. long (in feet) as the age of the monkey (in years), and the weight
+.. of the monkey (in ounces) is the same as the age of the monkey's
+.. mother. The combined age of the monkey and its mother is thirty years.
+.. One half of the weight of the monkey, plus the weight of the banana,
+.. is one fourth as much as the weight of the weight and the weight of
+.. the rope. The monkey's mother is half as old as the monkey will be
+.. when it is three times as old as its mother was when she was half as
+.. old as the monkey will be when it is as old as its mother will be when
+.. she is four times as old as the monkey was when it was twice as old as
+.. its mother was when she was one third as old as the monkey was when it
+.. was as old as its mother was when she was three times as old as the
+.. monkey was when it was one fourth as old as it is now.
+.. How long is the banana?
+
+#include beep
+
+#op make_object nullary
+#op in_ounces postfix 700
+#op in_pounds postfix 700
+#op in_inches postfix 700
+#op in_feet postfix 700
+#op in_years postfix 700
+#op in_pound_feet postfix 700
+#op in_ounce_inches postfix 700
+
+make_object {
+	weight: aNumber;
+	length: aNumber;
+	age: aNumber;
+	linear_density: aNumber;
+	linear_density = weight / length
+}
+
+x in_ounces { x }
+x in_pounds { x / 16 }
+x in_inches { x }
+x in_feet { x / 12 }
+x in_years { x }
+x in_pound_feet { x * 0.75 }
+x in_ounce_inches { x }
+
+main {
+	rope: make_object;
+	banana: make_object;
+	monkey: make_object;
+	mother: make_object;
+	weight: make_object;
+	
+	rope.linear_density in_pound_feet = 1/3;
+	banana.linear_density in_ounce_inches = 2;
+	weight.weight = monkey.weight;
+	rope.length in_feet = monkey.age in_years;
+	monkey.weight in_ounces = mother.age in_years;
+	monkey.age in_years + mother.age in_years = 30;
+	monkey.weight in_pounds / 2 + banana.weight in_pounds = (weight.weight in_pounds + rope.weight in_pounds) / 4;
+	mother.age in_years = 1/2 * 3 * 1/2 * 4 * 2 * 1/3 * 3 * 1/4 * monkey.age;
+	banana.length
+}

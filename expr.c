@@ -237,3 +237,31 @@ if (tree->op->arity & OP_TERM) {	/* a TERM_NODE */
     }
 return tree;	/* anything else */
 }
+
+/***********************************************************************
+ *
+ * Walk expression tree looking for a name.
+ *
+ * entry:	root of tree, name to look for.
+ *
+ * exit:	true if name is in expression.
+ *
+ ***********************************************************************/
+int
+name_in_expr(tree, name)
+NODE *tree;
+NAME_NODE *name;
+{
+if (!tree) error("null node in expr_update!");
+if (!tree->op) error("node with no operator in expr_update!");
+
+if (tree->op->arity & OP_NAME) {	/* a NAME_NODE */
+    return ((NAME_NODE *)tree) == name;
+}
+if (tree->op->arity & OP_TERM) {	/* a TERM_NODE */
+    if (((TERM_NODE *)tree)->left && name_in_expr(((TERM_NODE *)tree)->left, name)) return 1;
+    if (((TERM_NODE *)tree)->right && name_in_expr(((TERM_NODE *)tree)->right, name)) return 1;
+    }
+return 0;	/* anything else */
+}
+
