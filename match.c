@@ -196,10 +196,11 @@ for (;;) {	/* for ever */
     else if (mrule = match(cn)) {	/* found a match */
 	learn = TRUE;
 	if ((mrule->verbose + verbose)>1) {
-	    fprintf(stderr, "MATCH: ");
+	    fprintf(stderr, "\nMATCH: ");
 	    rule_print(mrule);
 	    fprintf(stderr, "  REWRITE: ");
-	    expr_print(subject);
+	    // expr_print(subject);
+	    expr_print(cn);
 	    fprintf(stderr, " ==> ");
 	    }
 	/* if rule has a tag, and redex is labeled, then type the label */
@@ -229,6 +230,8 @@ for (;;) {	/* for ever */
 	    bondage = FALSE;
 	    }
 	if ((mrule->verbose + verbose)>1) {
+	    expr_print(ib);
+	    fprintf(stderr, "\n  SUBJECT: ");
 	    expr_print(subject);
 	    fprintf(stderr, "\n");
 	    }

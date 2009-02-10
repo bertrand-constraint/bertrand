@@ -4,5 +4,5 @@ main {
 F: aNumber;
 C: aNumber;
 
-F = (1.8 * C) + 32 ; F = C ; F
+F = (1.8 * C) + 32 ; F = C ; F, C
 }

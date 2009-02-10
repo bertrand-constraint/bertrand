@@ -27,8 +27,10 @@
 #op	++	right	1010 'linearop	... linear expr
 #op	**	non	1020		... linear term
 
-	... quick and dirty
+	... quick and dirty solving
 n'numvar = k'constant ; rest	{ n is k ; rest }
+0 = k1'constant + (k2'constant / v'numvar) ; rest { v ~= 0 ; v is (k2 / -k1) ; rest }
+k1'constant / v'numvar = k2'constant ; rest { v ~= 0 ; v is (k1 / k2) ; rest }
 
 	... Creating linear expressions
 k'constant * v'numvar		{ k * ((1**v)++0) }
@@ -47,12 +49,13 @@ a'number / k'constant		{ (1/k) * a }
 a'nonzero = b'number ; c'expr	{ 0 = a - b ; c }
 a'linearop = b'number ; c'expr	{ 0 = a - b ; c }
 .. a'numvar = b'number ; c'expr	{ 0 = a - b ; c }
-... lx'linear = k'constant ; rest   { 0 = lx - k ; rest }
+.. lx'linear = k'constant ; rest   { 0 = lx - k ; rest }
 
 	... Moving terms together
 a'linear + (b'linear + c'numop)	{ (a + b) + c }
 a'numop + b'linear		{ b + a }
 a'linear * (b'linear * c'numop)	{ (a * b) * c }
+k1'constant * (k2'constant / v'number) { (k1 * k2) / v }
 .. a'linear = b'linear + c'numop	{ c = a - b }
 .. a'linear = b'constant * c'numop	{ c = a/b }
 
@@ -85,6 +88,8 @@ lx_merge( false, ((c1**v1)++r1) , ((c2**v2)++r2) ) {
 ... solving
 ... "interesting" variables have not been implemented in this version
 0 = ((c**v'numvar) ++ rest'number) ; ex { (v is ((-1/c) * rest)) ; ex }
+0 = (1**v'numvar++0) ++ l'number ; rest { v is (- l) ; rest }
+.. 0 = (1**v'numvar++0) + l'number ; rest { v is (- l) ; rest } .. causes error
 
 ... cleaning up after a bound variable
 ... A bound variable can be replaced by a constant or a linear

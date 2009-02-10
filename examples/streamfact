@@ -1,0 +1,14 @@
+... factorial using stream
+#include beep
+
+#op fact prefix 900
+#op prod prefix 900
+#op ints prefix 900
+
+fact n { prod ints n }
+ints 1 { 1 }
+ints a'constant { ints (a-1) , a }
+prod a'constant { a }
+prod (a , b) { (prod a) * (prod b) }
+
+main { fact 4 }

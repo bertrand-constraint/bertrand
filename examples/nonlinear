@@ -1,0 +1,17 @@
+... nonlinear
+... Current equation solving rules not capable of solving these two problems
+
+#include beep
+
+main {
+  ... golden ratio
+  x: aNumber;
+  y: aNumber;
+  x+y/x = x/y;
+  
+  ... square root of two
+  z: aNumber;
+  1/z = z/2;
+  
+  x, y, z
+}
