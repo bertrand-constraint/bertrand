@@ -6,8 +6,8 @@ Bertrand
 Resources
 ---------
 
- * [Guide](Guide.html)
- * [Documentation](Documentation.html)
+ * [Guide](./Guide.html)
+ * [Documentation](./Documentation.html)
 
 License
 -------
