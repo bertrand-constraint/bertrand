@@ -1,0 +1,13 @@
+Bertrand 88 is copyright (c) 1988 Wm Leler.
+
+By using this software, you agree to the following:
+
+o+ That  you  will not  redistribute  this  software  without
+including this document and the copyright notice.
+
+o+ That you  will not  sell this  software,  modifications of
+this software,  or any derived software for commercial gain.
+
+The purpose of this distribution is  to  encourage  research
+into constraint languages.  Please help this effort along by
+reporting (or preferably fixing) bugs as you find them.
