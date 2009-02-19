@@ -1,10 +1,12 @@
 # Bertrand interpreter.
 
-# Make sure the variable LIBDIR is set to where you want your
-# include files to live (e.g., beep, bops and bag).
+.PHONY : clean
 
 # OPT = -O
 OPT = -g
+
+# Make sure the variable LIBDIR is set to where you want your
+# include files to live (e.g., beep, bops and bag).
 
 CFLAGS = $(OPT) -DLIBDIR='"libraries/"'
 
@@ -29,3 +31,7 @@ graphics.o: graphics.c graphics.h
 
 graphics.h: graphics.cps
 	cps graphics.cps
+
+clean:
+	rm *.o || true
+	rm bert || true
