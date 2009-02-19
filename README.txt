@@ -1,4 +1,4 @@
-Source for Bertrand '88 Beta distribution.
+Bertrand '88 Beta distribution.
 
 The documentation has been converted from troff to html. See
 Documentation.html and Guide.html.
@@ -17,4 +17,12 @@ files are pretty simple, actually.
 There is also graphicsnull.c, that simulates a graphics device
 but just prints out everything rather than drawing it.
 
+There is a Google Group for Bertrand. See
+http://groups.google.com/group/bertrand-constraint
+
+There is also a Git repository. See
+http://github.com/bertrand-constraint/
+Talk to me to get commit permission.
+
 Have fun!
+Wm Leler
