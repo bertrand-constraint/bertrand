@@ -80,4 +80,6 @@ do {
 	}
 
     } while(++argno<argc);
+
+    return 0;
 }
