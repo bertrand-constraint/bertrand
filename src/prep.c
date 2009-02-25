@@ -608,8 +608,9 @@ else printf("\n");
  * has already been precompiled.  NOT IMPLEMENTED YET.
  * Included files are searched for first in the current directory,
  * then in the directory called libdir, which defaults to the value
- * LIBDIR (#defined in def.h) or the UNIX environment variable BERTRAND,
- * if it is defined.
+ * LIBDIR (#defined in def.h) or the UNIX environment variable BERTRAND
+ * (if it is defined), and finally in the directory "libraries" (under
+ * the current directory).
  * If a file name contains spaces, it should be enclosed in double quotes.
  * A file name inside of double quotes may not contain any double quotes.
  *
@@ -648,8 +649,13 @@ if (NULL == infile) {
     strcat(fbuf, tok);
     infile = fopen(fbuf, "r");
     if (NULL == infile) {
-	fprintf(stderr, "include file: %s\n", tok);
-	error("file not found");
+	strcpy(fbuf, "libraries/");
+	strcat(fbuf, tok);
+	infile = fopen(fbuf, "r");
+	if (NULL == infile) {
+	    fprintf(stderr, "include file: %s\n", tok);
+	    error("file not found");
+	    }
 	}
     }
 infilename = char_copy(tok);
